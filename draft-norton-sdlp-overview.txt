@@ -1,0 +1,427 @@
+Internet-Draft                                                 M. Norton
+Intended status: Informational                               Independent
+Expires: January 2, 2027                                    July 2, 2026
+
+                 SDLP RFC 0: Overview and Architecture
+                   draft-norton-sdlp-overview-00
+
+M. Norton
+Independent
+El Mirage, Arizona, USA
+Email: mark433norton@gmail.com
+July 2026
+
+Abstract
+
+   This document provides an architectural overview of the Secured
+   Digital Lifecycle Protocol (SDLP). SDLP defines a structured model
+   for representing, identifying, tracking, and securing digital objects
+   across their entire lifecycle. This overview describes the SDLP
+   object model, the relationship between SDLP identity, lineage,
+   lifecycle, and security architecture, and the rationale for
+   distributing SDLP into multiple coordinated specifications. This
+   document serves as the entry point for readers and reviewers seeking
+   to understand the SDLP framework as a whole.
+
+Copyright (c) 2026 IETF Trust and the persons identified as the
+document authors.  All rights reserved.
+
+This document is subject to BCP 78 and the IETF Trust's Legal
+Provisions Relating to IETF Documents (https://trustee.ietf.org/
+license-info) in effect on the date of publication of this document.
+Please review these documents carefully, as they describe your rights
+and restrictions with respect to this document.
+
+This Internet-Draft is submitted in full conformance with the
+provisions of BCP 78 and BCP 79.
+
+Internet-Drafts are working documents of the Internet Engineering
+Task Force (IETF), its areas, and its working groups.  Note that
+other groups may also distribute working documents as Internet-
+Drafts.
+
+Internet-Drafts are draft documents valid for a maximum of six
+months and may be updated, replaced, or obsoleted by other
+documents at any time.  It is inappropriate to use Internet-Drafts
+as reference material or to cite them other than as "work in
+progress."
+
+The list of current Internet-Drafts can be accessed at
+https://www.ietf.org/1id-abstracts.html
+
+The list of Internet-Draft Shadow Directories can be accessed at
+https://www.ietf.org/shadow.html
+
+1.  Introduction
+
+   The Secured Digital Lifecycle Protocol (SDLP) defines a structured
+   framework for representing, identifying, tracking, and securing
+   digital objects across their entire lifecycle. SDLP provides a
+   consistent model that enables distributed systems to reason about
+   object provenance, identity, lineage, and lifecycle transitions using
+   interoperable and verifiable semantics.
+
+   SDLP is organized as a suite of coordinated specifications. Each
+   document defines one aspect of the SDLP model:
+
+   *  The identity specification defines the canonical structure and
+      semantics of SDLP identity values.
+
+   *  The lifecycle specification defines the SDLP lifecycle model and
+      the rules governing object transitions.
+
+   *  The lineage specification defines how SDLP-governed objects record
+      their ancestry and how lineage evolves across lifecycle events.
+
+   *  The security architecture defines the security properties,
+      integrity requirements, and threat model that apply across all
+      SDLP components.
+
+   *  The object format specification defines the canonical structure of
+      SDLP-governed objects and the fields required for interoperability.
+
+   This document provides an architectural overview of SDLP. It explains
+   how the individual specifications relate to one another, describes
+   the SDLP object model, and outlines the rationale for distributing
+   SDLP into multiple documents. The overview serves as the entry point
+   for readers and reviewers seeking to understand the SDLP framework as
+   a whole.
+
+   The goal of this document is descriptive rather than normative. It
+   does not define new protocol requirements. Instead, it summarizes the
+   SDLP architecture and provides context for the normative specifications
+   that comprise the SDLP suite.
+
+2.  SDLP Architecture Overview
+
+   SDLP defines a unified architectural model for representing and
+   managing digital objects across their entire lifecycle. The
+   architecture is composed of four core elements: identity, lineage,
+   lifecycle, and security. Together, these elements provide a coherent
+   framework that enables distributed systems to reason about object
+   provenance, transitions, and integrity using interoperable semantics.
+
+   SDLP identity provides the canonical mechanism for uniquely
+   identifying SDLP-governed objects. Identity values are stable across
+   lifecycle transitions and serve as the foundation for provenance
+   tracking, authorization, and object correlation.
+
+   SDLP lineage records the ancestry of an object. Lineage values evolve
+   only when duplication or transformation events occur, ensuring that
+   descendant objects remain traceable to their predecessors. Lineage
+   provides structural provenance that complements identity.
+
+   The SDLP lifecycle model defines the set of lifecycle events that
+   govern how objects evolve. Lifecycle transitions determine when
+   identity remains stable, when lineage extends, and when objects
+   change state. The lifecycle model provides the rules that ensure
+   consistent interpretation of object transitions across SDLP
+   deployments.
+
+   The SDLP security architecture defines the integrity, authenticity,
+   and tamper-evidence requirements that apply to identity, lineage, and
+   lifecycle information. It provides the threat model and security
+   controls necessary to ensure that SDLP-governed objects remain
+   trustworthy across distributed environments.
+
+   These components form a layered architecture. Identity provides
+   stable naming, lineage provides structural provenance, lifecycle
+   provides transition semantics, and the security architecture ensures
+   that all components remain protected from unauthorized modification.
+   The SDLP object format binds these components together into a
+   canonical representation suitable for storage, transmission, and
+   verification.
+
+   This architectural model enables SDLP to support a wide range of
+   applications, including digital content distribution, provenance
+   tracking, regulated data management, and secure object replication.
+
+3.  SDLP Object Model
+
+   The SDLP object model defines the canonical structure used to
+   represent SDLP-governed objects. The model provides a unified
+   framework that binds identity, lineage, lifecycle state, and security
+   metadata into a coherent representation suitable for storage,
+   transmission, and verification across distributed systems.
+
+   An SDLP-governed object consists of the following conceptual
+   components:
+
+   *  Identity: A stable and globally unique identifier that remains
+      constant across lifecycle transitions. Identity enables object
+      correlation, authorization, and provenance tracking.
+
+   *  Lineage: A structural record of the object's ancestry. Lineage
+      evolves only when duplication or transformation events occur and
+      provides traceability across descendant relationships.
+
+   *  Lifecycle State: A representation of the object's current position
+      within the SDLP lifecycle model. Lifecycle state determines when
+      identity remains stable, when lineage extends, and how objects
+      transition between states.
+
+   *  Security Metadata: Integrity, authenticity, and tamper-evidence
+      information that ensures the object and its associated SDLP
+      fields have not been modified outside of authorized lifecycle
+      events.
+
+   *  Object Payload: The application-defined content associated with
+      the SDLP-governed object. SDLP does not impose semantics on the
+      payload but ensures that its provenance and lifecycle transitions
+      are consistently represented.
+
+   These components are bound together by the SDLP object format
+   specification, which defines the canonical structure and encoding
+   rules for SDLP-governed objects. The object format ensures that SDLP
+   fields are represented consistently across implementations and that
+   identity, lineage, lifecycle, and security metadata can be validated
+   using interoperable mechanisms.
+
+   The SDLP object model provides the foundation upon which the SDLP
+   architecture is built. Identity supplies stable naming, lineage
+   supplies structural provenance, lifecycle supplies transition
+   semantics, and the security architecture ensures that all components
+   remain trustworthy. Together, these elements enable SDLP to support
+   secure, traceable, and interoperable object management across
+   distributed environments.
+
+4.  Relationship Between SDLP Specifications
+
+   The SDLP suite is composed of multiple coordinated specifications,
+   each defining one aspect of the SDLP architectural model. Although
+   each document is independently versioned and may evolve at different
+   rates, the specifications are designed to operate together as a
+   cohesive framework. This section describes how the SDLP documents
+   relate to one another and how their respective responsibilities
+   combine to form the complete SDLP architecture.
+
+   The identity specification defines the canonical structure and
+   semantics of SDLP identity values. Identity is the foundational
+   element of SDLP, providing stable naming and enabling object
+   correlation across distributed environments. All other SDLP
+   specifications rely on identity as a core primitive.
+
+   The lifecycle specification defines the SDLP lifecycle model and the
+   rules governing object transitions. Lifecycle events determine when
+   identity remains stable, when lineage extends, and how objects change
+   state. The lifecycle model provides the operational semantics that
+   drive the evolution of SDLP-governed objects.
+
+   The lineage specification defines how SDLP-governed objects record
+   their ancestry. Lineage values evolve only when duplication or
+   transformation events occur, ensuring that descendant objects remain
+   traceable to their predecessors. Lineage depends on the lifecycle
+   model to determine when extension is required and depends on identity
+   to ensure that ancestry is consistently represented.
+
+   The security architecture defines the integrity, authenticity, and
+   tamper-evidence requirements that apply across all SDLP components.
+   It provides the threat model and security controls necessary to
+   ensure that identity, lineage, and lifecycle information remain
+   trustworthy. The security architecture applies uniformly across the
+   SDLP suite.
+
+   The object format specification binds identity, lineage, lifecycle
+   state, and security metadata into a canonical representation suitable
+   for storage, transmission, and verification. The object format
+   ensures that SDLP-governed objects can be interpreted consistently
+   across implementations and that SDLP fields can be validated using
+   interoperable mechanisms.
+
+   Together, these specifications form a layered architecture. Identity
+   provides stable naming, lineage provides structural provenance,
+   lifecycle provides transition semantics, and the security
+   architecture ensures that all components remain protected from
+   unauthorized modification. The object format integrates these
+   elements into a unified representation, enabling SDLP to support
+   secure, traceable, and interoperable object management across
+   distributed environments.
+
+5.  Rationale for a Multi-Document Architecture
+
+   SDLP is intentionally structured as a suite of coordinated
+   specifications rather than a single monolithic document. This
+   approach reflects the architectural separation of concerns within
+   SDLP and ensures that each component can evolve independently while
+   maintaining clear and stable interfaces between specifications.
+
+   The identity, lineage, lifecycle, security architecture, and object
+   format specifications each define distinct conceptual responsibilities.
+   Identity provides stable naming, lineage provides structural
+   provenance, lifecycle provides transition semantics, and the security
+   architecture defines the integrity and authenticity requirements that
+   apply across all SDLP components. The object format binds these
+   elements together into a canonical representation. Combining these
+   topics into a single document would obscure their individual roles
+   and complicate both implementation and review.
+
+   A multi-document architecture also enables SDLP to scale. As SDLP
+   evolves, new specifications may be introduced to define additional
+   lifecycle events, security mechanisms, or object representations.
+   Separating the specifications allows new components to be added
+   without requiring revisions to the foundational documents.
+
+   The modular structure also benefits implementers. Systems that only
+   require identity and lineage can reference those specifications
+   directly without adopting the full lifecycle or security models.
+   Conversely, systems that require comprehensive provenance and
+   integrity guarantees can implement the entire SDLP suite. This
+   flexibility supports a wide range of deployment scenarios while
+   preserving interoperability.
+
+   Finally, the multi-document approach aligns with established IETF
+   practices. Many protocol families, including security frameworks,
+   naming systems, and architectural models, are defined through
+   multiple coordinated documents. SDLP follows this pattern to ensure
+   clarity, extensibility, and ease of review across the IETF process.
+
+6.  Document Roadmap
+
+   The SDLP suite is composed of multiple coordinated specifications.
+   Each document defines one aspect of the SDLP architectural model and
+   may be read independently, but the documents are most effective when
+   understood together. This section provides a roadmap for navigating
+   the SDLP specifications and understanding their respective roles
+   within the overall architecture.
+
+   *  SDLP Identity Specification (SDLP RFC 1)
+      Defines the canonical structure and semantics of SDLP identity
+      values. Identity is the foundational primitive upon which all
+      other SDLP components rely.
+
+   *  SDLP Lifecycle Specification (SDLP RFC 2)
+      Defines the SDLP lifecycle model and the rules governing object
+      transitions. Lifecycle events determine when identity remains
+      stable, when lineage extends, and how objects evolve.
+
+   *  SDLP Lineage Specification (SDLP RFC 3)
+      Defines the structure and semantics of SDLP lineage values.
+      Lineage records the ancestry of SDLP-governed objects and evolves
+      only when duplication or transformation events occur.
+
+   *  SDLP Security Architecture (SDLP RFC 4)
+      Defines the integrity, authenticity, and tamper-evidence
+      requirements that apply across all SDLP components. The security
+      architecture provides the threat model and security controls
+      necessary to ensure that SDLP-governed objects remain trustworthy.
+
+   *  SDLP Object Format Specification (SDLP RFC 5)
+      Defines the canonical structure used to represent SDLP-governed
+      objects. The object format binds identity, lineage, lifecycle
+      state, and security metadata into a unified representation.
+
+   The SDLP overview document (SDLP RFC 0) provides the architectural
+   context necessary to understand how these specifications relate to
+   one another. Readers seeking a high-level understanding of SDLP
+   should begin with this document before consulting the individual
+   specifications.
+
+   Readers implementing SDLP should consult the identity, lineage,
+   lifecycle, and object format specifications directly. Readers
+   evaluating SDLP’s security properties should consult the security
+   architecture. The modular structure of the SDLP suite allows readers
+   to focus on the components most relevant to their deployment while
+   preserving interoperability across the full architecture.
+
+7.  Security Considerations
+
+   SDLP is designed to provide consistent and verifiable provenance,
+   identity stability, and lifecycle integrity for digital objects.
+   Although this overview document does not define new protocol
+   requirements, it summarizes architectural components that have
+   security implications across the SDLP suite.
+
+   SDLP identity values must be protected from unauthorized creation or
+   modification. Identity serves as the foundational naming mechanism
+   for SDLP-governed objects, and compromise of identity generation or
+   assignment can lead to misattribution, unauthorized access, or
+   incorrect provenance interpretation.
+
+   SDLP lineage values must be tamper-evident. Lineage provides
+   structural provenance and evolves only when duplication or
+   transformation events occur. Unauthorized modification of lineage
+   information can obscure object ancestry, disrupt traceability, or
+   enable the insertion of forged descendants.
+
+   SDLP lifecycle transitions must be validated to ensure that objects
+   evolve only through authorized events. Incorrect or unauthorized
+   lifecycle transitions can cause identity instability, improper
+   lineage extension, or inconsistent object state representation.
+
+   The SDLP security architecture defines the integrity, authenticity,
+   and tamper-evidence requirements that apply across all SDLP
+   components. Implementations must ensure that identity, lineage,
+   lifecycle, and object format metadata are protected from
+   unauthorized modification and can be validated using interoperable
+   mechanisms.
+
+   Because SDLP is a provenance and lifecycle framework rather than a
+   transport protocol, it does not introduce new network-level attack
+   surfaces. However, SDLP-governed objects may be transmitted across
+   untrusted environments, and implementations must ensure that SDLP
+   metadata remains protected during storage, transmission, and
+   replication.
+
+   Readers seeking detailed security requirements should consult the
+   SDLP security architecture specification, which defines the threat
+   model, integrity guarantees, and validation mechanisms that apply
+   across the SDLP suite.
+
+8.  IANA Considerations
+
+   This document has no actions for IANA.
+
+   The SDLP overview document is descriptive in nature and does not
+   define protocol parameters, registries, or code points requiring IANA
+   allocation or modification. Future SDLP specifications may introduce
+   registries as needed, but no such requirements arise from this
+   document.
+
+9.  References
+
+9.1.  Normative References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, May 2017.
+
+   [SDLP-ID]  Norton, M., "SDLP RFC 1: Identity Specification",
+              draft-norton-sdlp-identity-01, July 2026.
+
+   [SDLP-LC]  Norton, M., "SDLP RFC 2: Lifecycle Specification",
+              draft-norton-sdlp-lifecycle-01, July 2026.
+
+   [SDLP-LG]  Norton, M., "SDLP RFC 3: Lineage Specification",
+              draft-norton-sdlp-lineage-00, July 2026.
+
+   [SDLP-SA]  Norton, M., "SDLP RFC 4: Security Architecture",
+              draft-norton-sdlp-sec-arch-02, July 2026.
+
+   [SDLP-OF]  Norton, M., "SDLP RFC 5: Object Format Specification",
+              draft-norton-sdlp-obj-format-00, July 2026.
+
+
+9.2.  Informative References
+
+   [IETF-PROV]  Moreau, L., et al., "PROV-Overview: An Overview of the
+                PROV Family of Documents", W3C Recommendation,
+                April 2013.
+
+   [IETF-ARCH]  Hinden, R., and B. Carpenter, "IETF Internet Standards
+                Process", RFC 2026, October 1996.
+
+   [IETF-TRUST] IETF Trust, "Legal Provisions Relating to IETF
+                Documents", https://trustee.ietf.org/license-info,
+                December 2009.
+
+   [IETF-ID]    IETF Secretariat, "Guidelines to Authors of Internet-
+                Drafts", https://www.ietf.org/id-info/guidelines.html.
+
+Author's Address
+
+   M. Norton
+   Independent
+   El Mirage, Arizona, USA
+   Email: mark433norton@gmail.com
