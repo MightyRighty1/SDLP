@@ -1,0 +1,631 @@
+Internet-Draft                                                 M. Norton
+Intended status: Informational                               Independent
+Expires: January 1, 2027                                    July 1, 2026
+
+                        SDLP Architecture (arch)
+                      draft-norton-sdlp-arch-03
+
+M. Norton
+Email: mark433norton@gmail.com
+July 2026
+
+This Internet-Draft is submitted in full conformance with the
+provisions of BCP 78 and BCP 79.
+
+Internet-Drafts are working documents of the Internet Engineering Task
+Force (IETF), its areas, and its working groups. Note that other groups
+may also distribute working documents as Internet-Drafts.
+
+Internet-Drafts are draft documents valid for a maximum of six months
+and may be updated, replaced, or obsoleted by other documents at any
+time. It is inappropriate to use Internet-Drafts as reference material
+or to cite them other than as "work in progress."
+
+The list of current Internet-Drafts can be accessed at
+https://www.ietf.org/1id-abstracts.html
+
+The list of Internet-Draft Shadow Directories can be accessed at
+https://www.ietf.org/shadow.html
+
+Abstract
+
+   The Secured Digital Lifecycle Protocol (SDLP) defines an architecture
+   for lifecycle-governed digital objects. SDLP introduces a uniform
+   model for object identity, provenance, state transitions, and
+   authorized transformations, enabling digital goods to enforce their
+   own lifecycle rules across heterogeneous systems and distribution
+   environments.
+
+   This document describes the architectural components that support
+   SDLP objects, including identity construction, lifecycle state
+   definitions, transition conditions, and the mechanisms by which
+   objects validate their own integrity and permitted operations. The
+   architecture defines how SDLP objects are created, transformed,
+   distributed, consumed, and retired, and specifies the interoperability
+   requirements needed for consistent behavior across independent
+   implementations.
+
+   This document does not define wire formats or protocol exchanges.
+   Instead, it provides the architectural foundation upon which SDLP
+   protocol specifications, security mechanisms, and implementation
+   profiles can be built.
+
+Status of This Memo
+
+   This Internet-Draft is being made available through the Independent
+   Submission Stream. It is not a product of the Internet Engineering
+   Task Force (IETF) and does not represent IETF consensus or IESG
+   approval. It is published for informational purposes.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF), its areas, and its working groups. Note that other
+   groups may also distribute working documents as Internet-Drafts.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time. It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   Information about the current status of this document, any errata,
+   and how to provide feedback may be obtained at the RFC Editor
+   website.
+
+Copyright Notice
+
+   Copyright (c) 2026 IETF Trust and the persons identified as the
+   document authors. All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (https://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document. Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.
+
+Table of Contents
+
+0. Architectural Purpose
+1. Introduction
+2. Terminology
+3. Object Identity
+4. Lifecycle Semantics
+5. Lineage Model
+6. Environment Validation
+7. Security Considerations
+8. IANA Considerations
+23. References
+24. Acknowledgments
+25. Author’s Address
+Appendix A. Rationale
+
+
+0.  Architectural Purpose
+
+   The Secured Digital Lifecycle Protocol (SDLP) defines a deterministic
+   lifecycle model for digital objects. The architecture assumes that
+   user behavior, operational environments, and administrative controls
+   cannot be relied upon to provide consistent security guarantees.
+   Consequently, SDLP does not depend on user intent, discretionary
+   policy enforcement, or external trust assumptions.
+
+   SDLP establishes mandatory lifecycle rules that govern the creation,
+   existence, transition, and termination of digital instances. These
+   rules are enforced by the instances themselves and are not subject to
+   override by users or intermediaries.
+
+   The architecture supports a security model in which digital objects
+   validate their own state, detect unauthorized conditions, and enter
+   terminal destruction states when required. This approach ensures that
+   object integrity and lifecycle compliance are maintained even in the
+   presence of operational error, misconfiguration, or malicious
+   activity.
+
+   The purpose of SDLP is to provide lifecycle integrity in environments
+   where external behavioral or administrative controls cannot be
+   guaranteed.
+
+0.1.  Out-of-Scope Items
+
+   The following items are out of scope for this document. SDLP defines
+   lifecycle rules, not the implementation details of systems that adopt
+   them.
+
+   *  Implementation details
+   *  Transport mechanisms
+   *  Storage formats
+   *  Cryptographic algorithm selection
+   *  Commercial licensing models
+   *  UI or UX considerations
+   *  External content-protection mechanisms (e.g., DRM)
+
+1.  Introduction
+
+   The Secured Digital Lifecycle Protocol (SDLP) defines identity,
+   lineage, and lifecycle semantics for digital objects. An SDLP object
+   is a structured instance with a verifiable identity, a deterministic
+   lifecycle, and an environment binding that governs how the object
+   may be activated, transformed, or copied.
+
+   SDLP generalizes concepts familiar from OAuth—identity, introspection,
+   environment validation, and lifecycle transitions—and applies them to
+   digital objects rather than authorization artifacts. Unlike ordinary
+   files, SDLP objects do not rely on user intent or discretionary
+   policy; their behavior is determined entirely by lifecycle rules and
+   environment constraints.
+
+   Copying an SDLP object does not produce a second instance of the same
+   object. For identity‑bound objects (e.g., sealed digital collectibles),
+   a copied byte sequence fails identity validation and cannot activate
+   in any compliant environment. For entertainment media and other
+   copy‑permitted classes, copying is a lifecycle transition: the copied
+   bytes instantiate a new child object with its own SDLP identifier,
+   lineage entry, and environment binding. SDLP does not prevent
+   copying; it ensures that copying results in either a non‑functional
+   duplicate or a valid child object, depending on the object’s class.
+
+   SDLP objects maintain lineage across all lifecycle transitions.
+   Environment validation ensures that each transition—activation,
+   copying, transformation, or sealing—occurs only in a compliant
+   environment. These mechanisms provide deterministic lifecycle
+   behavior even in the presence of operational error, misconfiguration,
+   or malicious activity.
+
+2.  Terminology
+
+   The following terms are used throughout this document.
+
+   SDLP Object
+      A digital object that carries SDLP-defined metadata including
+      identity, lifecycle state, lineage, and environment constraints.
+      An SDLP object is activated, transformed, validated, and retired
+      according to the rules defined in this protocol.
+
+   Object Identity
+      A unique identifier assigned to an SDLP object at issuance.
+      Identity is validated by compliant environments prior to
+      activation or transformation. Identity validation is analogous
+      to OAuth token introspection.
+
+   Lifecycle State
+      The current operational state of an SDLP object. Lifecycle states
+      include: "issued", "active", "transformed", "expired", "revoked",
+      and "destroyed". Lifecycle transitions are governed by SDLP rules
+      and validated by compliant environments.
+
+   Lineage
+      Metadata describing the ancestry of an SDLP object. Lineage
+      records the issuer, issuance time, and any transformations that
+      produced descendant objects. Lineage is preserved across
+      transformations and validated by compliant environments.
+
+   Environment
+      A system, application, or service capable of validating SDLP
+      object identity, evaluating lifecycle state, enforcing transition
+      rules, and performing transformations. Environments must
+      implement SDLP-compliant behavior to activate or transform
+      objects.
+
+   Activation
+      The process by which an environment validates an SDLP object’s
+      identity, evaluates its lifecycle state, and authorizes its use.
+      Activation is analogous to the acceptance of an OAuth token by a
+      resource server.
+
+   Transformation
+      A state transition that produces a descendant SDLP object with
+      updated lifecycle metadata and preserved lineage. Transformations
+      are analogous to OAuth token derivation or token exchange.
+
+   Introspection
+      The process by which an environment evaluates an SDLP object’s
+      identity, lineage, lifecycle state, and constraints. SDLP
+      introspection is conceptually similar to OAuth token
+      introspection but applies to digital objects rather than access
+      tokens.
+
+   Constraint
+      A rule limiting where or how an SDLP object may be activated or
+      transformed. Constraints may include environment identifiers,
+      permitted lifecycle transitions, or other protocol-defined
+      restrictions.
+
+3.  Object Identity
+
+   Every SDLP object carries a unique identity assigned at issuance.
+   Object identity is the foundational element of SDLP lifecycle
+   governance. Identity determines whether an object may be activated,
+   transformed, introspected, or retired by a compliant environment.
+
+   SDLP object identity is conceptually similar to the identity of an
+   OAuth access token. As with OAuth tokens, the bytes of an SDLP object
+   may be copied, but the identity cannot be duplicated. A copied object
+   fails identity validation and cannot be activated by any compliant
+   environment.
+
+3.1.  Identity Structure
+
+   SDLP object identity consists of protocol-defined metadata that
+   includes:
+
+   *  A globally unique object identifier.
+   *  Issuer information identifying the environment that created the
+      object.
+   *  Issuance timestamp.
+   *  Lifecycle state at issuance.
+   *  Lineage root (the initial ancestor of the object).
+
+   The identity structure is immutable. Transformations may produce
+   descendant objects, but the identity of the original object does not
+   change.
+
+3.2.  Identity Validation
+
+   Identity validation is performed by compliant environments prior to
+   activation or transformation. Validation includes:
+
+   *  Confirming that the object identifier is well-formed.
+   *  Verifying that the object was issued by a recognized environment.
+   *  Ensuring that the object has not been revoked or destroyed.
+   *  Confirming that the object’s lineage metadata is intact.
+   *  Evaluating whether the object’s lifecycle state permits the
+      requested operation.
+
+   Identity validation is analogous to OAuth token introspection. An
+   environment must validate identity before accepting or transforming
+   an object.
+
+3.3.  Identity and Copying
+
+   SDLP does not prevent copying of object bytes. However, copying does
+   not produce a second valid object. A copied object:
+
+   *  Retains the original bytes.
+   *  Fails identity validation.
+   *  Cannot be activated.
+   *  Cannot be transformed.
+   *  Cannot progress through the lifecycle.
+
+   SDLP enforces lifecycle behavior through identity validation rather
+   than through access control or rights management. Copying is allowed,
+   but copied objects do not function.
+
+3.4.  Identity and Lineage
+
+   Identity is tightly coupled with lineage. The identity of an object
+   establishes the root of its lineage tree. Descendant objects inherit
+   lineage metadata but receive new identities. Identity validation
+   ensures that lineage is preserved and that transformations produce
+   legitimate descendants rather than unauthorized copies.
+
+4.  Lifecycle Semantics
+
+   SDLP defines a deterministic lifecycle for digital objects. Each
+   object carries an identity, a lineage entry, and an environment
+   binding. Lifecycle transitions occur only when the environment
+   satisfies the validation rules associated with the object’s class.
+
+   SDLP objects fall into two broad categories:
+
+   * Identity‑bound objects: These objects have a sealed identity and
+     cannot produce functional copies. Copying the bytes yields a
+     duplicate that fails identity validation and cannot activate or
+     progress through the lifecycle.
+
+   * Copy‑permitted objects: These objects allow copying as a lifecycle
+     transition. Copying produces a new child object with a new SDLP
+     identifier, a lineage reference to the parent, and a fresh
+     environment binding. Entertainment media, courseware, and other
+     distributable content fall into this category.
+
+   Lifecycle transitions include:
+
+   * Activation: The environment validates the object’s identity and
+     binding before allowing use.
+
+   * Copy: For copy‑permitted objects, the environment instantiates a
+     new child object with inherited metadata and a new SDLP identifier.
+     For identity‑bound objects, the copied bytes cannot activate.
+
+   * Transformation: The environment produces a new object derived from
+     the parent, with updated lineage and lifecycle state.
+
+   * Sealing: The environment finalizes the object, preventing further
+     lifecycle transitions except those explicitly permitted by class
+     rules.
+
+   Each transition updates the object’s lineage, ensuring that SDLP
+   objects maintain a verifiable history across all environments and
+   operational contexts.
+
+
+5.  Lineage Model
+
+   SDLP defines a lineage model that records the ancestry of digital
+   objects as they undergo protocol-defined transformations. Lineage
+   provides a verifiable history of how an object was created, how it
+   has changed, and which environments performed those changes.
+
+   The lineage model is conceptually similar to OAuth token derivation
+   and token exchange, where a new token is produced based on an
+   existing token. SDLP generalizes this concept to digital objects and
+   ensures that lineage is preserved across all transformations.
+
+5.1.  Lineage Structure
+
+   Each SDLP object carries lineage metadata that includes:
+
+   *  The identity of the issuing environment.
+   *  The issuance timestamp.
+   *  The identity of the parent object, if any.
+   *  A record of transformations performed on the object.
+   *  The environment identifiers of systems that performed those
+      transformations.
+
+   Lineage metadata is immutable once written. Descendant objects may
+   append new lineage entries, but existing entries cannot be altered.
+
+5.2.  Lineage Preservation
+
+   When an SDLP object is transformed, the resulting descendant object
+   inherits the lineage of its parent. The descendant:
+
+   *  Receives a new identity.
+   *  Preserves the complete lineage of the parent.
+   *  Appends a new lineage entry describing the transformation.
+   *  Records the environment that performed the transformation.
+
+   Lineage preservation ensures that compliant environments can verify
+   the ancestry of any object and determine whether it was produced
+   through legitimate transformations.
+
+5.3.  Lineage Validation
+
+   Prior to activation or transformation, environments MUST validate the
+   lineage of an SDLP object. Lineage validation includes:
+
+   *  Confirming that the lineage chain is intact and well-formed.
+   *  Ensuring that each transformation was performed by a recognized
+      environment.
+   *  Verifying that no lineage entry has been removed or altered.
+   *  Evaluating whether the lineage permits the requested operation.
+
+   Lineage validation is conceptually similar to validating the claims
+   within a structured OAuth token, but applies to digital objects
+   rather than authorization artifacts.
+
+5.4.  Lineage and Copying
+
+   Copying an SDLP object does not produce a second instance of the same
+   object. SDLP distinguishes between two object classes:
+
+   *  Identity-bound objects: Copying the bytes yields a duplicate that
+      fails identity validation and cannot activate. These objects do
+      not produce functional children, and their lineage does not
+      extend through copying.
+
+   *  Copy-permitted objects (e.g., entertainment media): Copying is a
+      lifecycle transition. The copied bytes instantiate a new child
+      object with a new SDLP identifier, a lineage reference to the
+      parent, and a fresh environment binding. Copying extends lineage
+      and produces a new descendant object.
+
+   SDLP does not prevent copying; it ensures that copying results in
+   either a non-functional duplicate or a valid child object, depending
+   on the object’s class.
+
+5.5.  Lineage and Descendant Objects
+
+   Descendant objects form a lineage tree rooted at the original object.
+   Each descendant:
+
+   *  Has its own identity.
+   *  Inherits the lineage of its parent.
+   *  Appends a new lineage entry describing the transformation or copy.
+   *  May itself be transformed or copied, producing further descendants.
+
+   This lineage tree provides a complete, verifiable history of all
+   transformations and copy events performed on an object. Environments
+   may use lineage to determine whether a descendant object is
+   legitimate, whether it was produced by authorized environments, and
+   whether it may be activated or further transformed.
+
+6.  Environment Validation
+
+   SDLP relies on compliant environments to validate object identity,
+   evaluate lifecycle state, enforce transition rules, and preserve
+   lineage. Environment validation is the mechanism through which SDLP
+   ensures that digital objects behave consistently across systems,
+   platforms, and deployments.
+
+   Environment validation is conceptually similar to OAuth resource
+   servers validating access tokens. In OAuth, a resource server
+   evaluates a token’s issuer, claims, expiry, and revocation status
+   before allowing access. SDLP generalizes this model to digital
+   objects, requiring environments to validate identity, lineage,
+   lifecycle state, and constraints before activating or transforming
+   an object.
+
+6.1.  Environment Responsibilities
+
+   A compliant environment MUST perform the following actions prior to
+   activation or transformation:
+
+   *  Validate the object’s identity.
+   *  Validate the object’s lineage chain.
+   *  Validate the object’s lifecycle state.
+   *  Evaluate any constraints associated with the object.
+   *  Enforce legal lifecycle transitions.
+   *  Reject illegal or unauthorized transitions.
+   *  Record transformations in lineage metadata.
+
+   These responsibilities ensure that SDLP objects behave consistently
+   regardless of where they are activated or transformed.
+
+6.2.  Identity Validation
+
+   Environments MUST validate object identity before activation or
+   transformation. Identity validation includes:
+
+   *  Confirming that the object identifier is well-formed.
+   *  Verifying that the object was issued by a recognized environment.
+   *  Ensuring that the object has not been revoked or destroyed.
+   *  Confirming that the object’s identity metadata is intact.
+
+   Identity validation is analogous to OAuth token introspection.
+
+6.3.  Lineage Validation
+
+   Environments MUST validate lineage to ensure that the object was
+   produced through legitimate transformations. Lineage validation
+   includes:
+
+   *  Confirming that the lineage chain is intact.
+   *  Verifying that each transformation was performed by a recognized
+      environment.
+   *  Ensuring that no lineage entry has been removed or altered.
+
+   Lineage validation is conceptually similar to validating structured
+   claims within an OAuth token.
+
+6.4.  Lifecycle Validation
+
+   Environments MUST validate lifecycle state prior to activation or
+   transformation. Lifecycle validation includes:
+
+   *  Confirming that the object is not expired.
+   *  Confirming that the object is not revoked or destroyed.
+   *  Ensuring that the requested operation is permitted for the current
+      lifecycle state.
+
+   Lifecycle validation is analogous to OAuth token expiry and revocation
+   checks.
+
+6.5.  Constraint Evaluation
+
+   SDLP objects may include constraints that limit where or how they may
+   be activated or transformed. Environments MUST evaluate constraints
+   prior to activation or transformation. Constraints may include:
+
+   *  Environment identifiers.
+   *  Permitted lifecycle transitions.
+   *  Transformation restrictions.
+   *  Operational limitations.
+
+   Constraint evaluation ensures that SDLP objects behave consistently
+   across environments.
+
+6.6.  Rejection of Invalid Objects
+
+   Environments MUST reject objects that fail identity, lineage,
+   lifecycle, or constraint validation. Rejected objects:
+
+   *  Cannot be activated.
+   *  Cannot be transformed.
+   *  Cannot progress through the lifecycle.
+
+   SDLP enforces object behavior through validation rather than through
+   access control or rights management. Copying is allowed, but copied
+   objects do not function.
+
+7.  Security Considerations
+
+   SDLP requires that all lifecycle transitions be authenticated,
+   authorized, and recorded. Identity spoofing, unauthorized
+   transformations, lineage tampering, and state forgery MUST be
+   mitigated by protocol-level controls defined in the SDLP Security
+   Architecture.
+
+   Initialization is a mandatory trust boundary. Instances MUST evaluate
+   their environment prior to activation and MUST perform Pre-Init
+   Termination if any requirement is unmet.
+
+   Zeroization-class terminal states MUST be irreversible, and destroyed
+   instances MUST NOT be recoverable, rehydrated, resurrected, or
+   reinstantiated.
+
+   These requirements ensure that SDLP instances uphold lifecycle
+   guarantees regardless of user behavior or platform integrity.
+
+8.  IANA Considerations
+
+   This document makes no requests of IANA.
+
+23.  References
+
+23.1.  Normative References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174,
+              DOI 10.17487/RFC8174.
+
+   [RFC6749]  Hardt, D., "The OAuth 2.0 Authorization Framework",
+              RFC 6749, DOI 10.17487/RFC6749.
+
+   [RFC7662]  Richer, J. and M. Jones, "OAuth 2.0 Token Introspection",
+              RFC 7662, DOI 10.17487/RFC7662.
+
+
+23.2.  Informative References
+
+   [SDLP-SEC-ARCH]
+              Norton, M., "SDLP Security Architecture", Work in
+              Progress, draft-norton-sdlp-sec-arch-00.
+
+   [SDLP-IDENTITY]
+              Norton, M., "SDLP Identity Model", Work in Progress,
+              draft-norton-sdlp-identity-00.
+
+   [SDLP-LIFECYCLE]
+              Norton, M., "SDLP Lifecycle Specification", Work in
+              Progress, draft-norton-sdlp-lifecycle-00.
+
+   [SDLP-OBJ-FORMAT]
+              Norton, M., "SDLP Object Format", Work in Progress,
+              draft-norton-sdlp-obj-format-00.
+
+   [RFC6819]  Lodderstedt, T., Bradley, J., and N. Sakimura, "OAuth 2.0
+              Threat Model and Security Considerations", RFC 6819,
+              DOI 10.17487/RFC6819.
+
+24.  Acknowledgments
+
+   The author thanks the members of the OAuth community whose work
+   established the identity, introspection, and lifecycle concepts
+   generalized by SDLP. Their contributions provided the architectural
+   foundation upon which this document is built.
+
+   The author also acknowledges the feedback provided by early
+   reviewers, implementers, and independent contributors whose
+   discussions helped refine the SDLP object model, lifecycle semantics,
+   and environment‑validation framework.
+
+25.  Author’s Address
+
+   M. Norton
+   Independent
+   Email: mark433norton@gmail.com
+
+Appendix A.  Rationale
+
+   This appendix provides background context and design rationale for
+   the architectural choices made in SDLP. The intent is to document the
+   motivations, constraints, and conceptual foundations that informed
+   the SDLP object model, lifecycle semantics, and environment‑validation
+   framework.
+
+   SDLP generalizes concepts familiar to OAuth implementers—identity,
+   lifecycle, introspection, and environment constraints—and applies
+   them to digital objects rather than authorization artifacts. This
+   approach enables consistent lifecycle behavior across heterogeneous
+   systems without relying on user intent, discretionary policy, or
+   external administrative controls.
+
+   The architectural model prioritizes deterministic lifecycle behavior,
+   verifiable lineage, and environment‑validated transitions. These
+   principles ensure that SDLP objects maintain integrity even in the
+   presence of operational error, misconfiguration, or malicious
+   activity.
